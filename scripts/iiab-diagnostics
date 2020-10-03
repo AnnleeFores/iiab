@@ -119,13 +119,13 @@ cat_file /etc/rpi-issue
 echo "-IIAB-EXPLANATION-OF-THE-ABOVE-------------------------------------------------" >> $outfile
 echo >> $outfile
 if [ -f /etc/rpi-issue ]; then
-    echo "stage2 = Raspbian Lite" >> $outfile
-    echo "stage4 = Raspbian With Desktop" >> $outfile
-    echo "stage5 = Raspbian With Desktop + Recommended Software" >> $outfile
+    echo "stage2 = Raspberry Pi OS Lite" >> $outfile
+    echo "stage4 = Raspberry Pi OS with desktop" >> $outfile
+    echo "stage5 = Raspberry Pi OS with desktop + recommended software" >> $outfile
     echo >> $outfile
     echo "SEE https://github.com/RPi-Distro/pi-gen#stage-anatomy" >> $outfile
 else
-    echo "(This is NOT Raspbian!)" >> $outfile
+    echo "(This is NOT Raspberry Pi OS!)" >> $outfile
 fi
 echo >> $outfile
 cat_file /etc/issue.net
@@ -159,6 +159,7 @@ cat_file /etc/resolv.conf
 cat_file /etc/network/interfaces
 cat_file /etc/hostapd/hostapd.conf                  # Redacts most passwords above
 cat_file /etc/wpa_supplicant/wpa_supplicant.conf    # Redacts most passwords above
+cat_file /library/www/html/home/menu.json
 
 # Record all Ansible variables: SLOW! OUTPUT TOO LARGE?
 #pushd /opt/iiab/iiab > /dev/null
@@ -210,8 +211,9 @@ cat_cmd 'sudo iptables-save' 'Firewall rules'
 echo -e "\n  6. Log Files: (last 100 lines of each)\n"
 echo -e "\n\n\n\n6. LOG FILES (LAST 100 LINES OF EACH)\n" >> $outfile
 cat_tail /opt/iiab/iiab/iiab-install.log 100
-cat_tail /opt/iiab/iiab/iiab-network.log 100
+cat_tail /opt/iiab/iiab/iiab-configure.log 100
 cat_tail /opt/iiab/iiab/iiab-debug.log 100
+cat_tail /opt/iiab/iiab/iiab-network.log 100
 cat_tail /opt/iiab/iiab-admin-console/admin-install.log 100
 cat_tail /var/log/messages 100
 cat_tail /var/log/syslog 100
@@ -233,10 +235,11 @@ read ans < /dev/tty
 echo -e "\e[1m"
 if [ "$ans" == "" ] || [ "$ans" == "y" ] || [ "$ans" == "Y" ]; then
     echo -ne "PUBLISHING TO URL... "
-    pastebinit -b dpaste.com < $outfile    # Run 'pastebinit -l' to list other possible pastebin site URLs
+    #pastebinit -b dpaste.com < $outfile
+    pastebinit -b sprunge.us < $outfile    # Run 'pastebinit -l' to list other possible pastebin site URLs
 else
     echo -e "If you later decide to publish it, run:"
     echo
-    echo -e "   pastebinit -b dpaste.com < $outfile"
+    echo -e "   pastebinit -b sprunge.us < $outfile"
 fi
 echo -e "\e[0m"

@@ -22,18 +22,25 @@
 # 3 stanzas moved up from install.yml, so Debian finishes "BIG" IIAB install:
 # (WITH LOUD RED WARNINGS!)
 
-- name: "Set 'mongodb_install: True' and 'mongodb_enabled: True'"
+# If we got here sugarizer_install is True
+- name: "Set 'mongodb_install: True'"
   set_fact:
     mongodb_install: True
-    mongodb_enabled: True
 
-- name: MONGODB - run 'mongodb' role (attempt to install & enable MongoDB)
+# MongoDB auto-started by sugarizer.service - let's set 'mongodb_enabled: True'
+# regardless - anticipating that MongoDB (should!) run on demand:
+- name: "Set 'mongodb_enabled: True' when sugarizer_enabled"
+  set_fact:
+    mongodb_enabled: True
+  when: sugarizer_enabled | bool
+
+- name: MONGODB - run 'mongodb' role (attempt to install MongoDB)
   include_role:
     name: mongodb
 
 - name: EXIT 'sugarizer' ROLE & CONTINUE, IF 'mongodb_installed is undefined'
   fail:    # FORCE IT RED THIS ONCE!
-    msg: MongoDB INSTALLATION FAILED, likely because your OS is Debian.  Nevertheless IIAB will continue (consider this a warning!)
+    msg: MongoDB INSTALLATION FAILED, perhaps because your OS is Debian 10 on aarch64?  Nevertheless IIAB will continue (consider this a warning!)
   when: mongodb_installed is undefined
   ignore_errors: yes
 

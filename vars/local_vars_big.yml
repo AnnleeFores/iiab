@@ -7,6 +7,10 @@
 # IIAB does NOT currently support uninstalling apps!  So: if any IIAB app is
 # installed with 'APP_XYZ_install: True' below, do NOT later change that.
 
+# WARNING: IF YOU CONNECT YOUR IIAB'S INTERNAL WIFI TO THE INTERNET OVER 5 GHz,
+# YOU'LL PREVENT OLDER LAPTOPS/PHONES/TABLETS (WHICH REQUIRE 2.4 GHz) FROM
+# CONNECTING TO YOUR IIAB'S INTERNAL HOTSPOT.  See "wifi_up_down: True" below.
+
 
 # Ansible's default timeout for "get_url:" downloads (10 seconds) often fails
 download_timeout: 200
@@ -39,14 +43,21 @@ iiab_domain: lan
 iiab_home_url: /home
 # You might also want to set captiveportal_splash_page (below!)
 
-# Raspbian requires Wi-Fi country since March 2018.  Please set it here:
+# WARNING: IF YOU CONNECT YOUR IIAB'S INTERNAL WIFI TO THE INTERNET OVER 5 GHz,
+# YOU'LL PREVENT OLDER LAPTOPS/PHONES/TABLETS (WHICH REQUIRE 2.4 GHz) FROM
+# CONNECTING TO YOUR IIAB'S INTERNAL HOTSPOT.  See "wifi_up_down: True" below.
+#
+# Raspberry Pi OS requires Wi-Fi country since March 2018.  Please set it here:
 host_country_code: US
 host_ssid: "Internet in a Box"
 host_wifi_mode: g
 host_channel: 6
 hostapd_secure: False
 hostapd_password: changeme
-wifi_up_down: True    # Creates a 2nd virtual wifi adapter for upstream WiFi
+wifi_hotspot_capacity_rpi_fix: True    # Restores the ability of RPi internal
+# WiFi hotspots to service 30-to-32 client devices.  Background explanation:
+# https://github.com/iiab/iiab/issues/823#issuecomment-662285202 and PR #2472.
+wifi_up_down: True    # Creates a 2nd virtual WiFi adapter for upstream WiFi
 # (e.g. to Internet) in addition to downstream WiFi (e.g. classroom hotspot).
 # You can set iiab_gateway_enabled below, to enable "passthrough" to Internet.
 
@@ -56,7 +67,7 @@ wan_netmask:       # wan_netmask: 255.255.255.0
 wan_gateway:       # wan_gateway: 192.168.1.254
 # If nec wan_nameserver can override ISP-provided DNS servers via dnsmasq:
 # /etc/resolv.conf dictates which backend is used for the machine itself, so
-# 127.0.0.1 means you get dnsmasq (so it works right away on Raspbian) while
+# 127.0.0.1 means you get dnsmasq (so it works right away on RaspiOS) while
 # 127.0.0.53 gives you systemd-networkd (so Ubuntu itself does NOT use this
 # dnsmasq-specified upstream DNS [e.g. wan_nameserver] but its LAN clients do!)
 wan_nameserver:    # wan_nameserver: 192.168.1.254 or 8.8.8.8 or 1.1.1.1
@@ -119,8 +130,11 @@ js_menu_install: True
 
 # 1-PREP
 
-# roles/sshd & roles/iiab-admin run here
-# SEE IIAB-ADMIN VARIABLES NEAR TOP OF THIS FILE:
+# SSHD runs here & also below in 4-SERVER-OPTIONS
+sshd_install: True    # Required by OpenVPN
+sshd_enabled: True
+
+# IIAB-ADMIN runs here - see its vars near top of this file:
 # e.g. iiab_admin_user_install, iiab_admin_user, iiab_admin_pwd_hash
 
 # SECURITY WARNING: See http://wiki.laptop.org/go/IIAB/Security
@@ -158,6 +172,8 @@ apache_allow_sudo: True
 
 
 # 4-SERVER-OPTIONS
+
+# SSHD runs here & also above in 1-PREP
 
 # DNS prep (dnsmasq, named &/or dhcpd) run here.  The full network stage runs
 # after 9-LOCAL-ADDONS (or manually run "cd /opt/iiab/iiab; ./iiab-network")
@@ -208,8 +224,9 @@ iiab_usb_lib_show_all: True
 
 # 6-GENERIC-APPS
 
+# UNMAINTAINED as of September 2020
 azuracast_install: False
-azuracast_enabled: False
+azuracast_enabled: False    # This var is currently IGNORED.
 
 # UNMAINTAINED as of January 2020: https://github.com/iiab/iiab/issues/2056
 # dokuwiki_install: False
@@ -294,7 +311,7 @@ osm_vector_maps_enabled: True
 
 # Might stall MongoDB on Power Failure: github.com/xsce/xsce/issues/879
 # Sugarizer 1.0.1+ strategies to solve? github.com/iiab/iiab/pull/957
-# 2019-07-08 WARNING: both vars are IGNORED on Debian 10+ due to MongoDB: github.com/iiab/iiab/issues/1437
+# 2020-09-22: Both vars WERE IGNORED on Deb 10 (MongoDB) but no longer?  #1437
 sugarizer_install: True
 sugarizer_enabled: True
 
@@ -325,9 +342,9 @@ transmission_kalite_languages:
 awstats_install: True
 awstats_enabled: True
 
-# 2019-07-08 WARNING: both vars are IGNORED on Debian 10+ due to: github.com/iiab/iiab/issues/1849
-monit_install: True
-monit_enabled: True
+# 2020-09-22 WARNING: both vars are IGNORED on Debian 10 due to: iiab/iiab#1849
+monit_install: False
+monit_enabled: False
 
 munin_install: True
 munin_enabled: True

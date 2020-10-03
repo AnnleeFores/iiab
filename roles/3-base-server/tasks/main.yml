@@ -6,11 +6,11 @@
 - name: MYSQL
   include_role:
     name: mysql
-  when: mysql_install | bool
+  #when: mysql_install | bool
 
-# 2020-05-21: Apache role 'httpd' is installed as nec by any of these 6 roles:
+# 2020-05-21: Apache role 'httpd' is installed as nec by any of these 7 roles:
 #
-#    cups, elgg, lokole, moodle, nodered, phpmyadmin
+#    cups, elgg, lokole, moodle, nodered, pbx, phpmyadmin
 #
 # These 14 roles conditionally touch /etc/apache2/sites-available/*.conf files:
 #
@@ -22,11 +22,12 @@
 - name: NGINX
   include_role:
     name: nginx
-  when: nginx_install | bool
+  #when: nginx_install | bool
 
 - name: WWW_BASE (WWW_OPTIONS should be installed later)
   include_role:
     name: www_base
+  #when: www_base_install | bool    # Flag might be created in future?
 
 - name: Recording STAGE 3 HAS COMPLETED =====================
   lineinfile:

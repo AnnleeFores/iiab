@@ -14,12 +14,6 @@
     state: present
   when: is_redhat | bool
 
-- name: Install {{ iiab_download_url }}/usbmount_0.0.14.1_all.deb, missing from Debian (debian-9 or debian-10, if NOT rpi)
-  apt:
-    deb: "{{ iiab_download_url }}/usbmount_0.0.14.1_all.deb"
-    #timeout: "{{ download_timeout }}"    # Ansible's apt module doesn't support timeout parameter; that's ok as usbmount_0.0.14.1_all.deb is only 10KB
-  when: internet_available and (is_debian_9 or is_debian_10) and not is_raspbian
-
 - name: "Install 6 deb/apt packages: avahi-daemon, exfat-fuse, exfat-utils, inetutils-syslogd, libnss-mdns, wpasupplicant (debuntu)"
   package:
     name:
@@ -33,7 +27,7 @@
     state: present
   when: is_debuntu | bool
 
-- name: "Install 24 common packages: acpid, bridge-utils, bzip2, curl, gawk, hostapd, htop, i2c-tools, logrotate, make, mlocate, netmask, net-tools, ntfs-3g, pandoc, pastebinit, rsync, sqlite3, sudo, tar, unzip, usbmount, usbutils, wget"
+- name: "Install 23 common packages: acpid, bridge-utils, bzip2, curl, gawk, hostapd, htop, i2c-tools, logrotate, make, mlocate, netmask, net-tools, ntfs-3g, pandoc, pastebinit, rsync, sqlite3, sudo, tar, unzip, usbutils, wget"
   package:
     name:
       - acpid
@@ -46,7 +40,7 @@
       - htop
       - i2c-tools
       - logrotate
-      #- lynx    # already installed by 1-prep's roles/iiab-admin/tasks/access.yml
+      #- lynx    # Installed by 1-prep's roles/iiab-admin/tasks/access.yml
       - make
       - mlocate
       - netmask
@@ -56,11 +50,12 @@
       - pandoc
       - pastebinit
       - rsync
+      #- screen    # Installed by 1-prep's roles/iiab-admin/tasks/access.yml
       - sqlite3
       - sudo
       - tar
       - unzip
-      - usbmount
+      #- usbmount    # Moved to roles/usb_lib/tasks/install.yml
       - usbutils
       - wget
     state: present

@@ -5,23 +5,17 @@
 # - 7 DB config
 # - 2 record as installed
 
-- name: 'Install MySQL packages: mariadb-server, mariadb-client, and 9 php packages (debuntu)'
+- name: 'Install MySQL packages: mariadb-server, mariadb-client (debuntu)'
   package:
     name:
       - mariadb-server
       - mariadb-client
-      # - php{{ php_version }}    # On Ubuntu 20.04 (and prob other OS's) this forces the install of: apache2 apache2-bin apache2-data apache2-utils libapache2-mod-php{{ php_version }} ETC
-      - php{{ php_version }}-common    # 2020-05-21: @jvonau suggests this to avoid Apache above.  Or its superset php{{ php_version }}-cli if absolutely nec?
-      - php{{ php_version }}-mysql
-      - php-pear
-      - php{{ php_version }}-gd
-      - php{{ php_version }}-imap
-      - php{{ php_version }}-ldap
-      - php{{ php_version }}-odbc
-      - php{{ php_version }}-xml    # Was below
-      - php{{ php_version }}-xmlrpc
     state: present
   when: is_debuntu | bool
+
+# 2020-07-11:
+# 10 PHP package installs moved to roles/www_base/tasks/main.yml
+# php{{ php_version }}-sqlite3 install moved to roles/osm-vector-maps/tasks/install.yml
 
 # - name: "Install packages: mysql, MySQL-python and 9 php packages (OS's other than debuntu)"
 #   package:
@@ -119,42 +113,31 @@
     owner: root
     mode: '0600'
 
-# 'localhost' needs to be the last item for idempotency, see
-# http://ansible.cc/docs/modules.html#mysql-user
-# unfortunately it still doesn't work
-- name: Update MySQL root password for localhost root accounts
-  mysql_user:
-    name: root
-    host: localhost
-    password: "{{ mysql_root_password }}"
-    priv: "*.*:ALL,GRANT"
+#- name: Remove the MySQL 'test' database
+#  mysql_db:
+#    db: test
+#    state: absent
 
-- name: Update MySQL root password for all remaining root accounts (127.0.0.1, ::1)
-  mysql_user:
-    name: root
-    host: "{{ item }}"
-    password: "{{ mysql_root_password }}"
-    priv: "*.*:ALL,GRANT"
-  with_items:
-    #- "{{ iiab_hostname }}.{{ iiab_domain }}"
-    - 127.0.0.1
-    - ::1
+#- name: Delete anonymous MySQL server user for {{ ansible_hostname }}
+#  mysql_user:
+#    user: ""
+#    host: "{{ ansible_hostname }}"
+#    state: absent
 
-- name: Delete anonymous MySQL server user for {{ ansible_hostname }}
-  mysql_user:
-    user: ""
-    host: "{{ ansible_hostname }}"
-    state: absent
+#- name: Delete anonymous MySQL server user for localhost
+#  mysql_user:
+#    user: ""
+#    state: absent
 
-- name: Delete anonymous MySQL server user for localhost
-  mysql_user:
-    user: ""
-    state: absent
-
-- name: Remove the MySQL 'test' database
-  mysql_db:
-    db: test
-    state: absent
+#- name: Create MySQL root password for root accounts on (127.0.0.1, ::1)
+#  mysql_user:
+#    name: root
+#    host: "{{ item }}"
+#    password: "{{ mysql_root_password }}"
+#    priv: "*.*:ALL,GRANT"
+#  with_items:
+#    - 127.0.0.1
+#    - ::1
 
 
 # RECORD MySQL AS INSTALLED
